@@ -1,13 +1,5 @@
 from django import forms
-from .models import (
-    PersonalDetail,
-    Education,
-    Experience,
-    Project,
-    Certificate,
-    Language,
-)
-
+from .models import PersonalDetail, Education, Experience, Project
 
 class PersonalDetailForm(forms.ModelForm):
     class Meta:
@@ -24,48 +16,17 @@ class PersonalDetailForm(forms.ModelForm):
             "about",
         ]
 
-
 class EducationForm(forms.ModelForm):
     class Meta:
         model = Education
-        fields = [
-            "degree",
-            "school",
-            "start_date",
-            "end_date",
-            "location",
-            "description",
-            "link",
-        ]
-
+        fields = ["degree", "school", "years", "description"]
 
 class ExperienceForm(forms.ModelForm):
     class Meta:
         model = Experience
-        fields = [
-            "title",
-            "employer",
-            "start_date",
-            "end_date",
-            "location",
-            "description",
-            "link",
-        ]
-
+        fields = ["title", "company", "years", "description"]
 
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ["title", "subtitle", "start_date", "end_date", "description", "link"]
-
-
-class CertificateForm(forms.ModelForm):
-    class Meta:
-        model = Certificate
-        fields = ["title", "details", "link"]
-
-
-class LanguageForm(forms.ModelForm):
-    class Meta:
-        model = Language
-        fields = ["name", "level"]
+        fields = ["title", "subtitle", "description"]

@@ -1,14 +1,13 @@
+from django.contrib import admin
 from django.urls import path
-from . import views
+from resume import views as r
 
 urlpatterns = [
-    path("", views.builder, name="builder"),
-    path("save-personal/", views.save_personal, name="save_personal"),
-    path("add-education/", views.add_education, name="add_education"),
-    path("add-experience/", views.add_experience, name="add_experience"),
-    path("add-project/", views.add_project, name="add_project"),
-    path("add-certificate/", views.add_certificate, name="add_certificate"),
-    path("add-language/", views.add_language, name="add_language"),
-    path("preview/", views.preview_template, name="preview"),
-    path("export-pdf/", views.export_pdf, name="export_pdf"),
+    path("admin/", admin.site.urls),
+    path("", r.builder, name="builder"),
+
+    path("api/personal/save", r.api_save_personal, name="api_personal_save"),
+    path("api/education/save", r.api_save_education, name="api_education_save"),
+    path("api/experience/save", r.api_save_experience, name="api_experience_save"),
+    path("api/projects/save", r.api_save_project, name="api_projects_save"),
 ]

@@ -1,135 +1,89 @@
-import json
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from .models import (
-    Resume,
-    PersonalDetail,
-    Education,
-    Experience,
-    Project,
-    Certificate,
-    Language,
-)
-from .forms import (
-    PersonalDetailForm,
-    EducationForm,
-    ExperienceForm,
-    ProjectForm,
-    CertificateForm,
-    LanguageForm,
-)
-from django.template.loader import render_to_string
-from weasyprint import HTML
+from django.utils.timezone import now
 
+from .models import Resume, PersonalDetail, Education, Experience, Project
+from .forms import PersonalDetailForm
 
-def get_or_create_resume(request):
+def _get_resume(request):
     rid = request.session.get("resume_id")
+    resume = None
     if rid:
         try:
-            return Resume.objects.get(id=rid)
+            resume = Resume.objects.get(id=rid)
         except Resume.DoesNotExist:
-            pass
-    r = Resume.objects.create()
-    PersonalDetail.objects.create(resume=r)
-    request.session["resume_id"] = r.id
-    return r
-
+            resume = None
+    if not resume:
+        resume = Resume.objects.create(title="My Resume", created_at=now())
+        request.session["resume_id"] = resume.id
+    return resume
 
 def builder(request):
-    resume = get_or_create_resume(request)
-    context = {
-        "resume": resume,
-        "personal_form": PersonalDetailForm(instance=resume.personal),
-        "education_form": EducationForm(),
-        "experience_form": ExperienceForm(),
-        "project_form": ProjectForm(),
-        "certificate_form": CertificateForm(),
-        "language_form": LanguageForm(),
-        "educations": resume.educations.all(),
-        "experiences": resume.experiences.all(),
-        "projects": resume.projects.all(),
-        "certificates": resume.certificates.all(),
-        "languages": resume.languages.all(),
+    resume = _get_resume(request)
+    personal = PersonalDetail.objects.filter(resume=resume).first()
+    education = Education.objects.filter(resume=resume).order_by("id").first()
+    experience = Experience.objects.filter(resume=resume).order_by("id").first()
+    project = Project.objects.filter(resume=resume).order_by("id").first()
+
+    ctx = {
+        "personal": personal,
+        "education": education,
+        "experience": experience,
+        "project": project,
     }
-    return render(request, "builder.html", context)
-
-
-@require_POST
-def save_personal(request):
-    resume = get_or_create_resume(request)
-    form = PersonalDetailForm(request.POST, request.FILES, instance=resume.personal)
-    if form.is_valid():
-        form.save()
-        return redirect("builder")
-    return redirect("builder")
-
+    return render(request, "builder.html", ctx)
 
 @require_POST
-def add_education(request):
-    resume = get_or_create_resume(request)
-    form = EducationForm(request.POST)
+def api_save_personal(request):
+    resume = _get_resume(request)
+    instance = PersonalDetail.objects.filter(resume=resume).first()
+    form = PersonalDetailForm(request.POST, request.FILES, instance=instance)
     if form.is_valid():
-        e = form.save(commit=False)
-        e.resume = resume
-        e.save()
-    return redirect("builder")
-
+        obj = form.save(commit=False)
+        obj.resume = resume
+        obj.save()
+        return JsonResponse({"ok": True})
+    return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
 @require_POST
-def add_experience(request):
-    resume = get_or_create_resume(request)
-    form = ExperienceForm(request.POST)
-    if form.is_valid():
-        e = form.save(commit=False)
-        e.resume = resume
-        e.save()
-    return redirect("builder")
-
-
-@require_POST
-def add_project(request):
-    resume = get_or_create_resume(request)
-    form = ProjectForm(request.POST)
-    if form.is_valid():
-        p = form.save(commit=False)
-        p.resume = resume
-        p.save()
-    return redirect("builder")
-
+def api_save_education(request):
+    resume = _get_resume(request)
+    obj, _ = Education.objects.get_or_create(resume=resume)
+    obj.degree = request.POST.get("degree", "")
+    obj.school = request.POST.get("school", "")
+    obj.description = request.POST.get("desc", "")
+    obj.location = ""
+    obj.start_date = None
+    obj.end_date = None
+    obj.link = ""
+    obj.save()
+    return JsonResponse({"ok": True})
 
 @require_POST
-def add_certificate(request):
-    resume = get_or_create_resume(request)
-    form = CertificateForm(request.POST)
-    if form.is_valid():
-        c = form.save(commit=False)
-        c.resume = resume
-        c.save()
-    return redirect("builder")
-
+def api_save_experience(request):
+    resume = _get_resume(request)
+    obj, _ = Experience.objects.get_or_create(resume=resume)
+    obj.title = request.POST.get("title", "")
+    obj.employer = request.POST.get("company", "")
+    obj.description = request.POST.get("desc", "")
+    obj.location = ""
+    obj.start_date = None
+    obj.end_date = None
+    obj.link = ""
+    obj.save()
+    return JsonResponse({"ok": True})
 
 @require_POST
-def add_language(request):
-    resume = get_or_create_resume(request)
-    form = LanguageForm(request.POST)
-    if form.is_valid():
-        l = form.save(commit=False)
-        l.resume = resume
-        l.save()
-    return redirect("builder")
-
-
-def preview_template(request):
-    resume = get_or_create_resume(request)
-    return render(request, "resume_preview.html", {"resume": resume})
-
-
-def export_pdf(request):
-    resume = get_or_create_resume(request)
-    html = render_to_string("resume_preview.html", {"resume": resume})
-    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = 'attachment; filename="FormaCV.pdf"'
-    return response
+def api_save_project(request):
+    resume = _get_resume(request)
+    obj, _ = Project.objects.get_or_create(resume=resume)
+    obj.title = request.POST.get("title", "")
+    obj.subtitle = request.POST.get("subtitle", "")
+    obj.description = request.POST.get("desc", "")
+    obj.link = ""
+    obj.start_date = None
+    obj.end_date = None
+    obj.save()
+    return JsonResponse({"ok": True})

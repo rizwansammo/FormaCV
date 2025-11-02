@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col lg:flex-row h-screen bg-gray-50">
+
+    <!-- Left: Builder -->
+    <div class="w-full lg:w-1/2 bg-white border-r overflow-y-auto p-8">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Resume Builder</h1>
+
+        <form id="resumeForm" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="mt-1 block w-full border rounded-md p-2" placeholder="Your full name" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Job Title</label>
+                <input type="text" id="title" name="title" class="mt-1 block w-full border rounded-md p-2" placeholder="e.g. Software Engineer" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email" class="mt-1 block w-full border rounded-md p-2" placeholder="you@example.com" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Phone</label>
+                <input type="text" id="phone" name="phone" class="mt-1 block w-full border rounded-md p-2" placeholder="+880..." />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">About</label>
+                <textarea id="about" name="about" rows="4" class="mt-1 block w-full border rounded-md p-2" placeholder="A short bio about yourself..."></textarea>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Right: Live Preview -->
+    <div class="w-full lg:w-1/2 bg-gray-100 p-8 overflow-y-auto">
+        <div id="resumePreview" class="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto">
+            <h1 id="previewName" class="text-3xl font-bold text-gray-900">Your Name</h1>
+            <p id="previewTitle" class="text-lg text-gray-600">Your Title</p>
+            <p id="previewEmail" class="text-gray-500 mt-1">you@example.com</p>
+            <p id="previewPhone" class="text-gray-500">+880123456789</p>
+            <p id="previewAbout" class="text-gray-700 mt-4 leading-relaxed">
+                Write something about yourself here. It will update live as you type.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const bindings = [
+        ["#full_name", "#previewName", "Your Name"],
+        ["#title", "#previewTitle", "Your Title"],
+        ["#email", "#previewEmail", "you@example.com"],
+        ["#phone", "#previewPhone", "+880123456789"],
+        ["#about", "#previewAbout", "Write something about yourself here."]
+    ];
+
+    bindings.forEach(([inputSel, previewSel, placeholder]) => {
+        const input = document.querySelector(inputSel);
+        const preview = document.querySelector(previewSel);
+
+        input.addEventListener("input", () => {
+            preview.textContent = input.value.trim() || placeholder;
+        });
+    });
+});
+</script>
+{% endblock %}

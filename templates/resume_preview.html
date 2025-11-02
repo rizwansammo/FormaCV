@@ -1,0 +1,137 @@
+{% load static %}
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-white">
+        <div class="max-w-5xl mx-auto grid grid-cols-12 min-h-screen">
+            <aside class="col-span-4 bg-slate-900 text-white p-8">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-24 h-24 rounded-full overflow-hidden bg-slate-800"
+                    >
+                        {% if resume.personal.photo %}<img
+                            src="{{ resume.personal.photo.url }}"
+                            class="w-full h-full object-cover"
+                        />{% endif %}
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold">
+                            {{ resume.personal.full_name }}
+                        </div>
+                        <div class="text-sm">{{ resume.personal.title }}</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-1 text-sm">
+                    <div>{{ resume.personal.email }}</div>
+                    <div>{{ resume.personal.phone }}</div>
+                    <div>{{ resume.personal.location }}</div>
+                    <div>{{ resume.personal.website }}</div>
+                    <div>{{ resume.personal.linkedin }}</div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="font-semibold mb-2">Profile</div>
+                    <div class="text-sm text-slate-100/90">
+                        {{ resume.personal.about }}
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="font-semibold mb-2">Languages</div>
+                    <ul class="space-y-1 text-sm">
+                        {% for l in resume.languages.all %}
+                        <li>{{ l.name }} • {{ l.level }}/5</li>
+                        {% empty %}
+                        <li>—</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="mt-8">
+                    <div class="font-semibold mb-2">Certificates</div>
+                    <ul class="space-y-2">
+                        {% for c in resume.certificates.all %}
+                        <li>
+                            <div class="text-sm font-medium">{{ c.title }}</div>
+                            <div class="text-xs text-slate-200/80">
+                                {{ c.details }}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li>—</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+
+            <main class="col-span-8 p-10 space-y-10">
+                <section>
+                    <div class="text-xl font-semibold mb-3">
+                        Professional Experience
+                    </div>
+                    <div class="space-y-5">
+                        {% for x in resume.experiences.all %}
+                        <div>
+                            <div class="font-medium">{{ x.title }}</div>
+                            <div class="text-sm">{{ x.employer }}</div>
+                            <div class="text-xs text-stone-500">
+                                {{ x.start_date }} – {{ x.end_date }} • {{
+                                x.location }}
+                            </div>
+                            <div class="text-sm mt-1">{{ x.description }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="text-sm text-stone-400">—</div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section>
+                    <div class="text-xl font-semibold mb-3">Education</div>
+                    <div class="space-y-5">
+                        {% for e in resume.educations.all %}
+                        <div>
+                            <div class="font-medium">{{ e.degree }}</div>
+                            <div class="text-sm">{{ e.school }}</div>
+                            <div class="text-xs text-stone-500">
+                                {{ e.start_date }} – {{ e.end_date }} • {{
+                                e.location }}
+                            </div>
+                            <div class="text-sm mt-1">{{ e.description }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="text-sm text-stone-400">—</div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section>
+                    <div class="text-xl font-semibold mb-3">Skills</div>
+                    <div class="text-sm text-stone-500">Add later</div>
+                </section>
+
+                <section>
+                    <div class="text-xl font-semibold mb-3">Projects</div>
+                    <div class="space-y-5">
+                        {% for p in resume.projects.all %}
+                        <div>
+                            <div class="font-medium">{{ p.title }}</div>
+                            <div class="text-sm">{{ p.subtitle }}</div>
+                            <div class="text-xs text-stone-500">
+                                {{ p.start_date }} – {{ p.end_date }}
+                            </div>
+                            <div class="text-sm mt-1">{{ p.description }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="text-sm text-stone-400">—</div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>

@@ -205,9 +205,9 @@ You can deploy FormaCV on:
 
 ## 🧑‍💻 Author
 
-**Zero Byte**  
+**Rizwan**  
 📧 [mrizwan.sammo@gmail.com](mailto:mrizwan.sammo@gmail.com)  
-💼 [Mix Pro BD](https://mixprobd.com)  
+💼 [ZeroByte Security](https://mixprobd.com)  
 🧠 Developer & Designer of FormaCV  
 
 ---
